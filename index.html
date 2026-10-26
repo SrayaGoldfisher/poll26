@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>קלפי וירטואלית אנונימית | סקר חברים לבחירות לכנסת ה-26</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Heebo for modern UI, Frank Ruhl Libre for authentic Israeli ballot letters -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@700;900&family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Heebo', 'sans-serif'],
+                        ballot: ['"Frank Ruhl Libre"', 'serif'],
+                    },
+                    colors: {
+                        israel: {
+                            blue: '#0038b8',
+                            darkBlue: '#00247d',
+                            lightBlue: '#e8f0fe',
+                            envelope: '#1a56db'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Heebo', sans-serif;
+            background-color: #f1f5f9;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Authentic White Paper Ballot Slip Styling */
+        .ballot-slip {
+            background: linear-gradient(180deg, #ffffff 0%, #fcfcfc 85%, #f4f4f5 100%);
+            box-shadow: 
+                0 2px 4px rgba(0,0,0,0.06),
+                0 1px 1px rgba(0,0,0,0.04),
+                inset 0 0 0 1px rgba(0,0,0,0.08),
+                0 4px 0 #e2e8f0;
+            transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ballot-slip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(0, 56, 184, 0.08);
+        }
+
+        .ballot-slip:hover, .ballot-slip:active {
+            transform: translateY(-4px) scale(1.015);
+            box-shadow: 
+                0 12px 20px -4px rgba(0, 56, 184, 0.16),
+                inset 0 0 0 2px #0038b8,
+                0 5px 0 #cbd5e1;
+        }
+
+        .ballot-slip.selected-slip {
+            box-shadow: 
+                0 10px 25px -4px rgba(0, 56, 184, 0.28),
+                inset 0 0 0 3px #0038b8,
+                0 4px 0 #93c5fd;
+            background: #ffffff;
+        }
+
+        .ballot-letters {
+            font-family: 'Frank Ruhl Libre', serif;
+            letter-spacing: -0.03em;
+            line-height: 0.95;
+            color: #09090b;
+        }
+
+        /* Envelope Insertion Animation */
+        @keyframes slipIntoEnvelope {
+            0% {
+                transform: translateY(-45px) scale(1);
+                opacity: 1;
+            }
+            65% {
+                transform: translateY(25px) scale(0.92);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(55px) scale(0.85);
+                opacity: 0;
+            }
+        }
+
+        @keyframes dropEnvelopeIntoBox {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            40% {
+                transform: translateY(-12px) scale(1.03);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110px) scale(0.65);
+                opacity: 0;
+            }
+        }
+
+        .animate-slip-insert {
+            animation: slipIntoEnvelope 0.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .animate-envelope-drop {
+            animation: dropEnvelopeIntoBox 0.75s cubic-bezier(0.5, 0, 0.2, 1) 0.55s forwards;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-900 pb-24">
+
+    <!-- Top Official Israeli Election Banner -->
+    <header class="bg-gradient-to-l from-israel-darkBlue via-israel-blue to-blue-700 text-white shadow-lg sticky top-0 z-30 border-b-4 border-sky-300">
+        <div class="max-w-3xl mx-auto px-3 sm:px-4 py-3">
+            <div class="flex items-center justify-between gap-2">
+                <!-- Title & Badge -->
+                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <div class="w-11 h-11 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/30 flex flex-col items-center justify-center shrink-0 shadow-inner">
+                        <span class="text-[10px] font-bold tracking-wider text-sky-200 leading-none">הכנסת</span>
+                        <span class="text-lg font-black text-white leading-tight">26</span>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <h1 class="text-base sm:text-xl font-black tracking-tight leading-tight truncate">קלפי וירטואלית אנונימית</h1>
+                            <button onclick="openFirebaseSetupModal()" id="syncStatusPill" class="inline-flex items-center gap-1.5 text-[11px] font-bold bg-emerald-500/25 hover:bg-emerald-500/35 text-emerald-100 border border-emerald-400/40 px-2.5 py-0.5 rounded-full transition cursor-pointer">
+                                <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span id="syncStatusText">קלפי מסונכרנת בזמן אמת (Firebase)</span>
+                            </button>
+                        </div>
+                        <p class="text-[11px] sm:text-xs text-sky-100/90 font-medium truncate">סקר חברים חשאי לבחירות לכנסת ה-26 • ללא רישום וללא זיהוי</p>
+                    </div>
+                </div>
+
+                <!-- Action Triggers: Firebase Setup & Privacy -->
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button onclick="openFirebaseSetupModal()" class="bg-white/15 hover:bg-white/25 active:scale-95 transition text-xs font-bold px-2.5 sm:px-3 py-2 rounded-xl border border-white/25 flex items-center gap-1.5" title="חיבור ל-Firebase ומדריך GitHub Pages">
+                        <i data-lucide="settings" class="w-4 h-4 text-sky-200"></i>
+                        <span class="hidden md:inline">חיבור Firebase / GitHub</span>
+                    </button>
+                    <button onclick="openPrivacyModal()" class="bg-white/10 hover:bg-white/20 active:scale-95 transition text-xs font-semibold px-2.5 sm:px-3 py-2 rounded-xl border border-white/20 flex items-center gap-1.5" title="מידע על אנונימיות ההצבעה">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-300"></i>
+                        <span class="hidden sm:inline">100% אנונימי</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-3xl mx-auto px-3 sm:px-4 pt-4 space-y-4">
+
+        <!-- WhatsApp Group Room & Sync Bar -->
+        <section class="bg-white rounded-2xl p-3.5 sm:p-4 shadow-sm border border-slate-200/90">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-start sm:items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 text-israel-blue flex items-center justify-center shrink-0">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs font-bold text-slate-500">קוד קלפי קבוצתי:</span>
+                            <span id="currentRoomBadge" class="font-mono font-black text-sm bg-blue-50 text-israel-blue border border-blue-200 px-2.5 py-0.5 rounded-lg tracking-wider">KNESSET26</span>
+                            <button onclick="openRoomModal()" class="text-xs font-bold text-blue-600 hover:text-blue-800 underline underline-offset-2 flex items-center gap-0.5">
+                                <i data-lucide="edit-3" class="w-3 h-3"></i>
+                                החלף קוד קלפי
+                            </button>
+                            <button onclick="openFirebaseSetupModal()" class="text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-lg flex items-center gap-1 transition">
+                                <i data-lucide="database" class="w-3 h-3"></i>
+                                <span id="dbModeBadgeText">הגדרות Firebase / GitHub</span>
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">
+                            שלחו את הקישור בקבוצת הוואטסאפ — כל החברים מצביעים לאותה תיבת קלפי בזמן אמת.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Share Invite on WhatsApp -->
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="shareInviteToWhatsApp()" class="flex-1 sm:flex-initial bg-[#25D366] hover:bg-[#20bd5a] active:scale-95 text-white font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                        <span>שתף קישור לקבוצה בוואטסאפ</span>
+                    </button>
+                    <button onclick="copyInviteText()" title="העתק הודעת הזמנה וקישור" class="bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 p-2.5 rounded-xl transition border border-slate-200">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs: Tray vs Live Results -->
+        <div class="bg-slate-200/80 p-1.5 rounded-2xl grid grid-cols-2 gap-1.5 border border-slate-300/60">
+            <button id="tabVoteBtn" onclick="switchMainTab('vote')" class="py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-white text-israel-blue shadow-sm">
+                <i data-lucide="vote" class="w-4 h-4"></i>
+                <span>מגש הפתקים (הצבעה)</span>
+            </button>
+            <button id="tabResultsBtn" onclick="switchMainTab('results')" class="py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                <span>תוצאות הקלפי</span>
+                <span id="headerVoteCountBadge" class="bg-blue-100 text-israel-blue text-xs font-black px-2 py-0.5 rounded-full">0</span>
+            </button>
+        </div>
+
+        <!-- Already Voted Status Banner (Hidden unless user voted in this room) -->
+        <div id="userVotedBanner" class="hidden bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 sm:p-4 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-emerald-950 text-sm sm:text-base">המעטפה שלך הוכנסה לקלפי בהצלחה!</h3>
+                        <p class="text-xs text-emerald-700">הבחירה שלך נשמרה באופן אנונימי לחלוטין ומסונכרנת במדגם הקבוצתי.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="toggleMySecretVote()" id="revealMyVoteBtn" class="text-xs font-bold bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+                        <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                        <span>הצג מה הצבעתי</span>
+                    </button>
+                    <button onclick="switchMainTab('results')" class="text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl transition">
+                        לתוצאות המדגם ←
+                    </button>
+                </div>
+            </div>
+            <!-- Secret personal vote reveal box (client-side only) -->
+            <div id="mySecretVoteBox" class="hidden mt-3 pt-2.5 border-t border-emerald-200/80 flex items-center justify-between text-xs text-emerald-900">
+                <span>הפתק ששלשלת בקלפי זו (מוצג רק על המכשיר שלך): <strong id="mySecretVoteText" class="font-black text-emerald-950"></strong></span>
+                <span class="text-[11px] text-emerald-700">ניתן לבחור פתק אחר כדי לעדכן את הצבעתך</span>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 1: VOTING SLIPS TRAY ==================== -->
+        <section id="voteSection" class="space-y-4">
+            
+            <!-- Search & Category Filter Bar -->
+            <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200 space-y-3">
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                    <input 
+                        id="searchInput" 
+                        type="text" 
+                        oninput="renderBallotSlips()" 
+                        placeholder="חיפוש מפלגה, ראש רשימה או אותיות פתק (למשל: מחל, פה, רק, כן, שס, אמת...)" 
+                        class="w-full bg-slate-50 border border-slate-200 focus:border-israel-blue focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-xl pr-10 pl-9 py-2.5 text-sm outline-none transition"
+                    >
+                    <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        <i data-lucide="x-circle" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Filter Pills -->
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                        <button onclick="setTrayFilter('main')" id="filterMainBtn" class="filter-pill shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl bg-israel-blue text-white transition">
+                            מפלגות מרכזיות
+                        </button>
+                        <button onclick="setTrayFilter('all')" id="filterAllBtn" class="filter-pill shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                            כל הרשימות בקלפי
+                        </button>
+                        <button onclick="setTrayFilter('special')" id="filterSpecialBtn" class="filter-pill shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition">
+                            מתלבט/ת • פתק לבן
+                        </button>
+                    </div>
+
+                    <button onclick="openCustomSlipModal()" class="text-xs font-bold text-israel-blue bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-xl transition flex items-center gap-1 shrink-0">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        <span>הוספת פתק מותאם אישית</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Instruction Strip -->
+            <div class="flex items-center justify-between px-1 text-xs text-slate-500">
+                <span class="font-medium flex items-center gap-1.5">
+                    <i data-lucide="hand-metal" class="w-3.5 h-3.5 text-israel-blue"></i>
+                    לחצו על פתק ההצבעה הלבן כדי להכניסו למעטפה הכחולה:
+                </span>
+                <span id="displayedSlipsCount" class="font-bold text-slate-600"></span>
+            </div>
+
+            <!-- The White Ballot Slips Grid ("מגש הפתקים") -->
+            <div class="bg-slate-300/70 p-3 sm:p-4 rounded-3xl border-2 border-slate-300 shadow-inner">
+                <div id="ballotSlipsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-3.5">
+                    <!-- Rendered dynamically via JS -->
+                </div>
+
+                <!-- Expand Additional Official Lists Button -->
+                <div id="expandAllListsContainer" class="mt-4 pt-3 border-t border-slate-300/80 text-center">
+                    <button onclick="setTrayFilter('all')" class="w-full sm:w-auto bg-white hover:bg-blue-50 text-israel-blue font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-sm border border-blue-200 transition inline-flex items-center justify-center gap-2">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>הצג את כל הרשימות והפתקים הנוספים המתמודדים לכנסת ה-26</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Special Options Tray (Undecided / Blank Slip) -->
+            <div class="bg-white rounded-2xl p-3.5 sm:p-4 border border-slate-200 shadow-sm">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                    <i data-lucide="help-circle" class="w-3.5 h-3.5 text-amber-500"></i>
+                    אפשרויות נוספות בסקר החברים:
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="specialSlipsGrid">
+                    <!-- Rendered via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 2: LIVE RESULTS & 120 MANDATES ==================== -->
+        <section id="resultsSection" class="hidden space-y-4">
+
+            <!-- Results Privacy Lock (Optional toggle before voting) -->
+            <div id="beforeVoteWarning" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center space-y-3">
+                <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
+                    <i data-lucide="eye-off" class="w-6 h-6"></i>
+                </div>
+                <div class="max-w-md mx-auto">
+                    <h3 class="font-bold text-amber-950 text-base">טרם שלשלת מעטפה בקלפי זו</h3>
+                    <p class="text-xs text-amber-800 mt-1">
+                        כדי שהמדגם בקבוצה ישקף את דעתך האמיתית ללא השפעה מוקדמת, מומלץ להצביע תחילה ורק אז לצפות בתוצאות.
+                    </p>
+                </div>
+                <div class="flex items-center justify-center gap-2.5 pt-1">
+                    <button onclick="switchMainTab('vote')" class="bg-israel-blue hover:bg-israel-darkBlue text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm transition">
+                        מעבר למגש הפתקים להצבעה
+                    </button>
+                    <button onclick="unlockResultsAnyway()" class="bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition">
+                        הצג תוצאות בכל זאת
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Results Content -->
+            <div id="resultsDashboardContent" class="space-y-4">
+                
+                <!-- Top KPI Summary Cards -->
+                <div class="grid grid-cols-3 gap-2.5 sm:gap-3">
+                    <div class="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+                        <span class="text-[11px] sm:text-xs font-semibold text-slate-500 block">סה"כ מעטפות</span>
+                        <span id="statTotalVotes" class="text-2xl sm:text-3xl font-black text-israel-blue mt-0.5 block">0</span>
+                        <span class="text-[10px] text-emerald-600 font-medium flex items-center justify-center gap-1 mt-0.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                            מתעדכן בזמן אמת
+                        </span>
+                    </div>
+                    <div class="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+                        <span class="text-[11px] sm:text-xs font-semibold text-slate-500 block">קולות למפלגות</span>
+                        <span id="statValidVotes" class="text-2xl sm:text-3xl font-black text-slate-800 mt-0.5 block">0</span>
+                        <span id="statLeadingParty" class="text-[10px] text-slate-500 font-medium block truncate mt-0.5">ממתין להצבעות</span>
+                    </div>
+                    <div class="bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+                        <span class="text-[11px] sm:text-xs font-semibold text-slate-500 block">מתלבטים / לבן</span>
+                        <span id="statUndecidedVotes" class="text-2xl sm:text-3xl font-black text-amber-600 mt-0.5 block">0%</span>
+                        <span id="statUndecidedCount" class="text-[10px] text-slate-500 font-medium block mt-0.5">0 מצביעים</span>
+                    </div>
+                </div>
+
+                <!-- WhatsApp Live Results Share Card -->
+                <div class="bg-gradient-to-l from-emerald-600 to-teal-600 rounded-2xl p-4 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="font-black text-sm sm:text-base flex items-center gap-1.5">
+                            <i data-lucide="message-circle" class="w-5 h-5"></i>
+                            <span>שלחו את מדגם הקלפי וחלוקת המנדטים לוואטסאפ!</span>
+                        </h3>
+                        <p class="text-xs text-emerald-50 mt-0.5">
+                            מייצר הודעת סיכום מעוצבת ("📊 מדגם קלפי החברים - הבחירות לכנסת ה-26") להדבקה בצ'אט.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="shareResultsToWhatsApp()" class="flex-1 sm:flex-initial bg-white text-emerald-800 hover:bg-emerald-50 active:scale-95 font-black text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>שתף מדגם בוואטסאפ</span>
+                        </button>
+                        <button onclick="copyResultsText()" title="העתק סיכום תוצאות" class="bg-emerald-700/60 hover:bg-emerald-700 text-white p-2.5 rounded-xl border border-white/20 transition">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 120 Knesset Seats Simulator ("תמונת המנדטים של הקבוצה") -->
+                <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                        <div>
+                            <h2 class="font-black text-base sm:text-lg text-slate-900 flex items-center gap-2">
+                                <i data-lucide="landmark" class="w-5 h-5 text-israel-blue"></i>
+                                <span>תמונת 120 המנדטים של הקבוצה</span>
+                            </h2>
+                            <p class="text-xs text-slate-500">חישוב יחסי של כנסת בת 120 מושבים לפי הצבעות החברים בקלפי</p>
+                        </div>
+
+                        <!-- Threshold Mode Toggle -->
+                        <div class="inline-flex bg-slate-100 p-1 rounded-xl border border-slate-200 self-start sm:self-auto">
+                            <button id="threshNoneBtn" onclick="setThresholdMode(false)" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white text-israel-blue shadow-sm transition">
+                                כל קול נחשב (לקבוצות חברים)
+                            </button>
+                            <button id="threshOfficialBtn" onclick="setThresholdMode(true)" class="text-[11px] font-bold px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">
+                                אחוז חסימה 3.25%
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Visual 120-Seat Stacked Bar -->
+                    <div id="mandateStackedBarWrapper" class="space-y-2">
+                        <div class="flex justify-between text-[11px] font-bold text-slate-500 px-1">
+                            <span>0</span>
+                            <span class="text-israel-blue">קו 61 מנדטים (רוב קואליציוני)</span>
+                            <span>120</span>
+                        </div>
+                        <div class="relative h-8 w-full bg-slate-100 rounded-xl overflow-hidden flex border border-slate-200 shadow-inner" id="mandateStackedBar">
+                            <!-- Segmented bars injected here -->
+                        </div>
+                        <!-- 61 Midline Indicator -->
+                        <div class="relative h-1 w-full">
+                            <div class="absolute right-[50.83%] -top-9 bottom-0 w-0.5 border-r-2 border-dashed border-slate-900/60 pointer-events-none z-10"></div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Party Breakdown List -->
+                    <div id="resultsListContainer" class="space-y-2.5 pt-1">
+                        <!-- Rendered via JS -->
+                    </div>
+
+                    <!-- Demo Simulation Helper (Only shown when room has 0 or 1 votes so organizer can preview) -->
+                    <div id="demoPreviewBanner" class="bg-slate-50 border border-dashed border-slate-300 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-israel-blue shrink-0"></i>
+                            <span>רוצה לבדוק איך נראים גרף המנדטים וההודעה לוואטסאפ עם 25 הצבעות?</span>
+                        </div>
+                        <button id="toggleDemoBtn" onclick="toggleDemoMode()" class="shrink-0 font-bold text-israel-blue hover:bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-lg transition">
+                            הפעל תצוגת הדגמה (25 קולות)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interactive Group Coalition Calculator -->
+                <div id="coalitionBuilderCard" class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-black text-sm sm:text-base text-slate-900 flex items-center gap-2">
+                                <i data-lucide="puzzle" class="w-4 h-4 text-israel-blue"></i>
+                                <span>מרכיבים קואליציה מהמדגם הקבוצתי</span>
+                            </h3>
+                            <p class="text-xs text-slate-500">לחצו על המפלגות שקיבלו מנדטים בקבוצה כדי לבדוק אם יש להן 61 מנדטים:</p>
+                        </div>
+                        <div class="text-left">
+                            <span id="coalitionSumBadge" class="inline-block font-black text-lg px-3 py-1 rounded-xl bg-slate-100 text-slate-800 border border-slate-200">
+                                0 / 61
+                            </span>
+                        </div>
+                    </div>
+                    <div id="coalitionPillsContainer" class="flex flex-wrap gap-2 pt-1">
+                        <!-- Party pills with mandates rendered here -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== MODAL 1: BLUE VOTING ENVELOPE ("מעטפת הצבעה") ==================== -->
+    <div id="envelopeModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-5 overflow-hidden relative">
+            
+            <!-- Top close bar -->
+            <div class="flex items-center justify-between">
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                    <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                    מאחורי הפרגוד • הצבעה חשאית
+                </span>
+                <button onclick="closeEnvelopeModal()" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Visual Slip + Blue Envelope Stage -->
+            <div class="py-2 flex flex-col items-center justify-center relative min-h-[250px]">
+                
+                <!-- Selected White Ballot Slip -->
+                <div id="modalSlipPreview" class="w-44 h-48 bg-white rounded-xl border-2 border-slate-300 shadow-lg flex flex-col items-center justify-center p-3 text-center z-10 relative transition-all">
+                    <div id="modalSlipLetters" class="ballot-letters text-5xl font-black text-slate-950 mb-2">מחל</div>
+                    <div id="modalSlipName" class="text-xs font-bold text-slate-800 leading-snug line-clamp-3"></div>
+                </div>
+
+                <!-- Blue Israeli Voting Envelope Graphic -->
+                <div id="modalBlueEnvelope" class="w-60 h-36 bg-gradient-to-b from-blue-600 to-israel-darkBlue rounded-2xl shadow-xl border-2 border-blue-400/50 -mt-12 z-20 flex flex-col items-center justify-between p-3.5 text-white relative">
+                    <div class="w-full border-t border-blue-300/40 pt-2 flex items-center justify-between text-[10px] text-blue-100 font-semibold">
+                        <span>ועדת הקלפי הקבוצתית</span>
+                        <span id="modalEnvelopeRoomCode">KNESSET26</span>
+                    </div>
+                    <div class="text-center my-auto">
+                        <div class="text-sm font-black tracking-wide">מעטפת הצבעה רשמית</div>
+                        <div class="text-[11px] text-blue-200">הבחירות לכנסת ה-26</div>
+                    </div>
+                    <div class="w-16 h-1 bg-white/30 rounded-full"></div>
+                </div>
+
+            </div>
+
+            <!-- Confirmation Buttons -->
+            <div class="space-y-2.5 pt-1">
+                <button id="castVoteConfirmBtn" onclick="confirmCastVote()" class="w-full bg-israel-blue hover:bg-israel-darkBlue active:scale-98 text-white font-black text-base py-3.5 px-4 rounded-2xl shadow-lg shadow-blue-600/25 transition flex items-center justify-center gap-2">
+                    <i data-lucide="check-square" class="w-5 h-5"></i>
+                    <span>הכנס מעטפה לקלפי (הצבעה אנונימית)</span>
+                </button>
+                <button onclick="closeEnvelopeModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm py-2.5 rounded-xl transition">
+                    חזרה למגש הפתקים
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 2: FIREBASE & GITHUB PAGES SETUP ("חיבור ל-Firebase ומדריך GitHub") ==================== -->
+    <div id="firebaseSetupModal" class="fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-xl rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4 my-auto max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                        <i data-lucide="flame" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-base sm:text-lg text-slate-900">חיבור ל-Firebase והעלאה ל-GitHub Pages</h3>
+                        <p class="text-xs text-slate-500">כך כל החברים בקבוצת הוואטסאפ יצביעו לאותה קלפי בזמן אמת</p>
+                    </div>
+                </div>
+                <button onclick="closeFirebaseSetupModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Current Connection Status Banner -->
+            <div id="modalConnectionStatusBox" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+                    <div class="text-xs">
+                        <span class="font-bold text-emerald-950 block" id="modalConnTitle">הקלפי מחוברת ומסונכרנת בזמן אמת</span>
+                        <span class="text-emerald-700" id="modalConnSubtitle">כל הצבעה נשמרת בענן ומתעדכנת אצל כל החברים</span>
+                    </div>
+                </div>
+                <button onclick="testFirebaseConnection()" class="shrink-0 bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs px-3 py-1.5 rounded-xl transition">
+                    בדיקת סנכרון
+                </button>
+            </div>
+
+            <!-- Method 1: Instant URL / Config Paste (No code editing required!) -->
+            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-black text-israel-blue bg-blue-100 px-2.5 py-0.5 rounded-full">שיטה 1 (הכי מהירה – ללא עריכת קוד!)</span>
+                </div>
+                <h4 class="font-bold text-sm text-slate-900">הדבק כתובת Firebase Realtime Database או firebaseConfig:</h4>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    אם תדביק כאן את כתובת ה-<strong>Realtime Database</strong> שלך מ-Firebase (למשל: <code class="bg-white px-1 py-0.5 rounded border text-[11px]" dir="ltr">https://my-poll-default-rtdb.firebaseio.com</code>), המערכת תצמיד אותה אוטומטית לקישור הוואטסאפ של הקבוצה (<code dir="ltr" class="text-[11px]">?room=...&db=...</code>). כך כל חבר שילחץ על הקישור ב-GitHub Pages יתחבר ישירות לקלפי שלך!
+                </p>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-700 block">כתובת Realtime Database URL או אובייקט firebaseConfig JSON:</label>
+                    <textarea 
+                        id="customFirebaseInput" 
+                        rows="3"
+                        dir="ltr"
+                        placeholder="https://YOUR-PROJECT-default-rtdb.firebaseio.com&#10;או הדבק את כל אובייקט ה-firebaseConfig..."
+                        class="w-full bg-white border border-slate-300 focus:border-israel-blue rounded-xl p-3 text-xs font-mono text-left outline-none"
+                    ></textarea>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="saveCustomFirebaseFromUI()" class="flex-1 bg-israel-blue hover:bg-israel-darkBlue text-white font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl shadow-xs transition flex items-center justify-center gap-1.5">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        <span>שמור וחבר את הקלפי ל-Firebase שלי</span>
+                    </button>
+                    <button onclick="clearCustomFirebaseFromUI()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl transition">
+                        איפוס
+                    </button>
+                </div>
+            </div>
+
+            <!-- Method 2: Paste in Code + GitHub Pages Guide -->
+            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2.5 text-xs text-slate-700">
+                <span class="text-xs font-black text-slate-700 bg-slate-200 px-2.5 py-0.5 rounded-full inline-block">שיטה 2 + מדריך העלאה ל-GitHub Pages ב-2 דקות</span>
+                <ol class="list-decimal list-inside space-y-1.5 leading-relaxed">
+                    <li><strong>ב-Firebase Console:</strong> צור פרויקט חינמי, הפעל <strong>Realtime Database</strong> (במצב Test Mode כך שניתן לקרוא/לכתוב) או <strong>Firestore Database</strong> + <strong>Authentication (Anonymous)</strong>.</li>
+                    <li><strong>הטמעה בקוד (אופציונלי):</strong> בראש אזור ה-<code>&lt;script&gt;</code> בקובץ זה מופיע המשתנה <code>CUSTOM_FIREBASE_CONFIG</code> — תוכל להדביק שם את ה-<code>firebaseConfig</code> שלך כדי שיהיה מובנה קבוע בקובץ.</li>
+                    <li><strong>העלאה ל-GitHub Pages:</strong> העלה את הקובץ בשם <code>index.html</code> ל-Repository ציבורי ב-GitHub, היכנס ל-<strong>Settings &rarr; Pages</strong>, בחר בענף <code>main</code> ולחץ Save. תוך דקה תקבל קישור מוכן לשיתוף בוואטסאפ!</li>
+                </ol>
+            </div>
+
+            <div class="pt-1">
+                <button onclick="closeFirebaseSetupModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-3 rounded-xl transition">
+                    סגור וחזור לקלפי
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 3: CHANGE / CREATE GROUP ROOM CODE ==================== -->
+    <div id="roomModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-black text-lg text-slate-900 flex items-center gap-2">
+                    <i data-lucide="key-round" class="w-5 h-5 text-israel-blue"></i>
+                    <span>הגדרת קוד קלפי לקבוצת הוואטסאפ</span>
+                </h3>
+                <button onclick="closeRoomModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed">
+                כדי שהחברים בקבוצה שלך יצביעו לאותה תיבת קלפי פרטית משלהם, בחר שם או קוד לקלפי (למשל: <code class="bg-slate-100 px-1.5 py-0.5 rounded font-bold">KNESSET26</code> או <code class="bg-slate-100 px-1.5 py-0.5 rounded font-bold">MILUIM</code>). הקוד מצורף אוטומטית לקישור הוואטסאפ!
+            </p>
+
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-700 block">קוד קלפי קבוצתי:</label>
+                <div class="flex gap-2">
+                    <input 
+                        id="roomCodeInput" 
+                        type="text" 
+                        maxlength="20"
+                        placeholder="למשל: KNESSET26" 
+                        class="flex-1 bg-slate-50 border border-slate-300 focus:border-israel-blue rounded-xl px-3.5 py-2.5 text-sm font-bold uppercase tracking-wider outline-none"
+                    >
+                    <button onclick="generateRandomRoomCode()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-xl border border-slate-200 shrink-0 flex items-center gap-1">
+                        <i data-lucide="shuffle" class="w-3.5 h-3.5"></i>
+                        <span>קוד אקראי</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="saveRoomCode()" class="flex-1 bg-israel-blue hover:bg-israel-darkBlue text-white font-bold text-sm py-3 rounded-xl shadow-sm transition">
+                    עבור לקלפי זו
+                </button>
+                <button onclick="closeRoomModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm px-4 py-3 rounded-xl transition">
+                    ביטול
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 4: ADD CUSTOM PARTY SLIP ("הוספת פתק מותאם אישית") ==================== -->
+    <div id="customSlipModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-black text-lg text-slate-900 flex items-center gap-2">
+                    <i data-lucide="plus-square" class="w-5 h-5 text-israel-blue"></i>
+                    <span>הוספת פתק הצבעה מותאם אישית</span>
+                </h3>
+                <button onclick="closeCustomSlipModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-600">
+                רוצים להוסיף מפלגה שלא מופיעה ברשימה או פתק הומוריסטי פנימי של החבר'ה בקבוצה? הוסיפו אותו כאן והצביעו בו!
+            </p>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-1">אותיות הפתק (עד 4 אותיות):</label>
+                    <input id="customSlipLettersInput" type="text" maxlength="4" placeholder="למשל: אחי" class="w-full bg-slate-50 border border-slate-300 focus:border-israel-blue rounded-xl px-3.5 py-2.5 text-lg font-ballot font-black text-center outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-1">שם המפלגה / הכיתוב מתחת לאותיות:</label>
+                    <input id="customSlipNameInput" type="text" maxlength="60" placeholder="למשל: מפלגת החברים של הקבוצה" class="w-full bg-slate-50 border border-slate-300 focus:border-israel-blue rounded-xl px-3.5 py-2.5 text-sm font-medium outline-none">
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="createAndSelectCustomSlip()" class="flex-1 bg-israel-blue hover:bg-israel-darkBlue text-white font-bold text-sm py-3 rounded-xl shadow-sm transition">
+                    צור פתק והכנס למעטפה
+                </button>
+                <button onclick="closeCustomSlipModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm px-4 py-3 rounded-xl transition">
+                    ביטול
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 5: PRIVACY & ANONYMITY EXPLANATION ==================== -->
+    <div id="privacyModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-base text-slate-900">איך נשמרת האנונימיות המוחלטת?</h3>
+                        <p class="text-xs text-emerald-700 font-semibold">הצבעה חשאית 100% ("מאחורי הפרגוד")</p>
+                    </div>
+                </div>
+                <button onclick="closePrivacyModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <ul class="space-y-2.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <li class="flex items-start gap-2">
+                    <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+                    <span><strong>ללא פרטים מזהים:</strong> האפליקציה לא מבקשת ולא שומרת שם, מספר טלפון, אימייל או כתובת IP של המצביעים.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+                    <span><strong>פתק בלבד בתיבת הקלפי:</strong> מה שנשמר ב-Firebase הוא אך ורק קוד הפתק שנבחר ומזהה אקראי חד-כיווני.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <i data-lucide="check" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+                    <span><strong>מניעת הצבעה כפולה:</strong> כל מכשיר מקבל אסימון הצבעה אנונימי חד-פעמי כדי שכל חבר יוכל להכניס מעטפה אחת בלבד לקלפי (עם אפשרות להחליף את הפתק שלו מאחורי הפרגוד אם התחרט).</span>
+                </li>
+            </ul>
+
+            <button onclick="closePrivacyModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-3 rounded-xl transition">
+                הבנתי, חזרה לקלפי
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 translate-y-2">
+        <div class="bg-slate-900 text-white text-xs sm:text-sm font-bold px-4 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+            <span id="toastMessage">ההודעה הועתקה ללוח!</span>
+        </div>
+    </div>
+
+    <!-- ==================== APPLICATION LOGIC & UNIVERSAL FIREBASE ==================== -->
+    <script type="module">
+        // ===========================================================================
+        // 🔧 הגדרת FIREBASE אישית עבור GITHUB PAGES (אופציונלי)
+        // ===========================================================================
+        // אם אתה מעלה את הקובץ ל-GitHub Pages, תוכל להדביק כאן את ה-firebaseConfig שלך
+        // מתוך Firebase Console -> Project Settings -> Your apps (Web),
+        // או פשוט להדביק את כתובת ה-Realtime Database ישירות דרך כפתור ה-⚙️ בממשק!
+        const CUSTOM_FIREBASE_CONFIG = {
+            apiKey: "",            // למשל: "AIzaSyD..."
+            authDomain: "",        // למשל: "my-poll.firebaseapp.com"
+            databaseURL: "",       // למשל: "https://my-poll-default-rtdb.firebaseio.com"
+            projectId: "",         // למשל: "my-poll"
+            storageBucket: "",
+            messagingSenderId: "",
+            appId: ""
+        };
+        // ===========================================================================
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ---------------------------------------------------------------------------
+        // 1. BALLOT LISTS DATA ("פתקי ההצבעה לבחירות לכנסת ה-26")
+        // ---------------------------------------------------------------------------
+        const PARTIES_DATA = [
+            // Main / Prominent Lists
+            { id: 'mahal', letters: 'מחל', name: 'הליכוד בהנהגת בנימין נתניהו לראשות הממשלה', shortName: 'הליכוד (נתניהו)', category: 'main', color: '#1d4ed8' },
+            { id: 'peh', letters: 'פה', name: 'יש עתיד בראשות יאיר לפיד', shortName: 'יש עתיד (יאיר לפיד)', category: 'main', color: '#0284c7' },
+            { id: 'rak', letters: 'רק', name: 'בנט 2026 – ביחד בראשות נפתלי בנט', shortName: 'בנט 2026 (נפתלי בנט)', category: 'main', color: '#0ea5e9' },
+            { id: 'ken', letters: 'כן', name: 'המחנה הממלכתי בראשות בני גנץ', shortName: 'המחנה הממלכתי (בני גנץ)', category: 'main', color: '#2563eb' },
+            { id: 'derech', letters: 'ישר', name: 'ישר! עם איזנקוט לראשות הממשלה מאחדים את ישראל', shortName: 'ישר! (גדי איזנקוט)', category: 'main', color: '#3b82f6' },
+            { id: 'emet', letters: 'אמת', name: 'הדמוקרטים (העבודה-מרצ) בראשות יאיר גולן', shortName: 'הדמוקרטים (יאיר גולן)', category: 'main', color: '#e11d48' },
+            { id: 'shas', letters: 'שס', name: 'התאחדות הספרדים שומרי תורה תנועתו של מרן הרב עובדיה יוסף זצ"ל', shortName: 'ש"ס', category: 'main', color: '#0f172a' },
+            { id: 'gimel', letters: 'ג', name: 'יהדות התורה והשבת אגודת ישראל – דגל התורה', shortName: 'יהדות התורה', category: 'main', color: '#334155' },
+            { id: 'bet', letters: 'ב', name: 'עוצמה יהודית בראשות איתמר בן גביר', shortName: 'עוצמה יהודית (בן גביר)', category: 'main', color: '#ea580c' },
+            { id: 'tet', letters: 'ט', name: 'הציונות הדתית בראשות בצלאל סמוטריץ\'', shortName: 'הציונות הדתית (סמוטריץ\')', category: 'main', color: '#d97706' },
+            { id: 'lamed', letters: 'ל', name: 'ישראל ביתנו בראשות אביגדור ליברמן', shortName: 'ישראל ביתנו (ליברמן)', category: 'main', color: '#0369a1' },
+            { id: 'vadam', letters: 'ודעם', name: 'חד"ש-תע"ל – הרשימה המשותפת', shortName: 'חד"ש-תע"ל', category: 'main', color: '#dc2626' },
+            { id: 'am', letters: 'עם', name: 'רע"ם – הרשימה הערבית המאוחדת', shortName: 'רע"ם (מנסור עבאס)', category: 'main', color: '#15803d' },
+            { id: 'balad', letters: 'ד', name: 'בל"ד – ברית לאומית דמוקרטית', shortName: 'בל"ד', category: 'main', color: '#b91c1c' },
+            { id: 'dei', letters: 'די', name: 'המילואימניקים והכלכלית בראשות יועז הנדל וירון זליכה', shortName: 'המילואימניקים (יועז הנדל)', category: 'main', color: '#0d9488' },
+            { id: 'chaf', letters: 'ך', name: 'עמך ישראל בראשות עופר וינטר', shortName: 'עמך ישראל (עופר וינטר)', category: 'main', color: '#4f46e5' },
+
+            // Additional Official Lists
+            { id: 'yud', letters: 'י', name: 'ישראל תחילה בראשות שרן השכל', shortName: 'ישראל תחילה (שרן השכל)', category: 'extra', color: '#7c3aed' },
+            { id: 'ni', letters: 'ני', name: 'נעם לישראל למען עתיד הילדים בראשות אבי מעוז', shortName: 'נעם (אבי מעוז)', category: 'extra', color: '#475569' },
+            { id: 'bad', letters: 'בד', name: 'מפלגת ביחד נצליח – רשימה משותפת ערבית יהודית בראשות אבי שקד', shortName: 'ביחד נצליח (אבי שקד)', category: 'extra', color: '#059669' },
+            { id: 'bi', letters: 'בי', name: 'צומת בית ישראל', shortName: 'צומת בית ישראל', category: 'extra', color: '#64748b' },
+            { id: 'bakar', letters: 'בקר', name: 'אורות השחר בראשות ניסים לוק', shortName: 'אורות השחר', category: 'extra', color: '#64748b' },
+            { id: 'hei', letters: 'ה', name: 'גן עדן בראשות ישוע ישראל בן דוד', shortName: 'גן עדן', category: 'extra', color: '#64748b' },
+            { id: 'zayin', letters: 'ז', name: 'בטח – בטחון חברתי בראשות סמיון גרפמן', shortName: 'בטח (סמיון גרפמן)', category: 'extra', color: '#64748b' },
+            { id: 'zach', letters: 'זך', name: 'הציבור החרדי בראשות מוטי ליטנר', shortName: 'הציבור החרדי', category: 'extra', color: '#64748b' },
+            { id: 'zatz', letters: 'זץ', name: 'ברית עולם לגאולת ישראל', shortName: 'ברית עולם', category: 'extra', color: '#64748b' },
+            { id: 'yak', letters: 'יק', name: 'גה"ת – גוש התנ"כי', shortName: 'גוש התנ"כי', category: 'extra', color: '#64748b' },
+            { id: 'naf', letters: 'נף', name: 'שמע בראשות נפתלי גולדמן', shortName: 'שמע', category: 'extra', color: '#64748b' },
+            { id: 'natz', letters: 'נץ', name: 'ביטחון אישי', shortName: 'ביטחון אישי', category: 'extra', color: '#64748b' },
+            { id: 'naki', letters: 'נקי', name: 'התיקון לשיטת הבחירות והממשל', shortName: 'התיקון לשיטת הבחירות', category: 'extra', color: '#64748b' },
+            { id: 'ner', letters: 'נר', name: 'צבע שחור – מגן עולם התורה', shortName: 'צבע שחור', category: 'extra', color: '#64748b' },
+            { id: 'tzvi', letters: 'צבי', name: 'תנועת אחי תנועתו של הרב יורם אברג\'ל זצ"ל', shortName: 'תנועת אחי', category: 'extra', color: '#64748b' },
+            { id: 'tzedek', letters: 'צדק', name: 'שרשר לאהבה ואחדות העם', shortName: 'שרשר לאהבה', category: 'extra', color: '#64748b' },
+            { id: 'tzaf', letters: 'צף', name: 'הפיראטים – צפים לטוב', shortName: 'הפיראטים', category: 'extra', color: '#0891b2' },
+            { id: 'kuf', letters: 'ק', name: 'תקומה', shortName: 'תקומה', category: 'extra', color: '#64748b' },
+            { id: 'kah', letters: 'קה', name: 'קול הנשים', shortName: 'קול הנשים', category: 'extra', color: '#db2777' },
+            { id: 'kach', letters: 'קך', name: 'סדר-חדש לכינון חוקה, להפרדת רשויות ולבחירות אישיות', shortName: 'סדר חדש', category: 'extra', color: '#64748b' },
+            { id: 'katz', letters: 'קץ', name: 'משפט צדק', shortName: 'משפט צדק', category: 'extra', color: '#64748b' },
+            { id: 'ratz', letters: 'רץ', name: 'הקהל – מפלגה כלל חרדית בראשות הרב שלמה אלבוים', shortName: 'הקהל', category: 'extra', color: '#64748b' },
+
+            // Special Poll Options
+            { id: 'undecided', letters: '?', name: 'מתלבט/ת • טרם החלטתי למי להצביע מחר', shortName: 'מתלבט/ת (טרם החלטתי)', category: 'special', color: '#f59e0b' },
+            { id: 'blank', letters: 'לבן', name: 'פתק לבן / לא מצביע/ה', shortName: 'פתק לבן / לא מצביע', category: 'special', color: '#94a3b8' }
+        ];
+
+        const PARTY_MAP = Object.fromEntries(PARTIES_DATA.map(p => [p.id, p]));
+
+        // ---------------------------------------------------------------------------
+        // 2. STATE & ANONYMOUS VOTER TOKEN MANAGEMENT
+        // ---------------------------------------------------------------------------
+        let currentRoomCode = 'KNESSET26';
+        let customRtdbUrl = ''; // Optional Firebase Realtime Database URL passed via ?db= or UI modal
+        let currentTrayFilter = 'main';
+        let pendingSlipId = null;
+        let allVotesDocs = [];
+        let rtdbVotesList = [];
+        let localSessionVotes = {};
+        let mySecretRevealed = false;
+        let forceUnlockResults = false;
+        let useOfficialThreshold = false;
+        let isDemoMode = false;
+        let selectedCoalitionParties = new Set();
+        let rtdbPollingInterval = null;
+        let activeSyncMode = 'firestore'; // 'rtdb' | 'custom_firestore' | 'firestore'
+
+        // Generate a persistent anonymous voter token per browser tab/window without localStorage
+        function getAnonymousVoterToken() {
+            if (currentUser && currentUser.uid) {
+                return currentUser.uid;
+            }
+            try {
+                if (window.name && window.name.startsWith('kalpi_voter_')) {
+                    return window.name;
+                }
+                const generated = 'kalpi_voter_' + crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+                window.name = generated;
+                return generated;
+            } catch (e) {
+                return 'kalpi_voter_session';
+            }
+        }
+
+        // Parse URL parameters (?room=...&db=...) so shared WhatsApp links auto-configure!
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomParam = urlParams.get('room');
+            if (roomParam && roomParam.trim().length > 0) {
+                currentRoomCode = roomParam.trim().toUpperCase().slice(0, 20);
+            }
+            const dbParam = urlParams.get('db');
+            if (dbParam && dbParam.trim().startsWith('https://')) {
+                customRtdbUrl = dbParam.trim().replace(/\/+$/, '');
+            } else if (CUSTOM_FIREBASE_CONFIG.databaseURL && CUSTOM_FIREBASE_CONFIG.databaseURL.trim().startsWith('https://')) {
+                customRtdbUrl = CUSTOM_FIREBASE_CONFIG.databaseURL.trim().replace(/\/+$/, '');
+            }
+        } catch (e) {
+            // Ignore URL parse issues in restricted iframes
+        }
+
+        // ---------------------------------------------------------------------------
+        // 3. UNIVERSAL FIREBASE INITIALIZATION (RTDB + CUSTOM CONFIG + ENV FIRESTORE)
+        // ---------------------------------------------------------------------------
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'knesset26-whatsapp-poll';
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        let unsubscribeSnapshot = null;
+
+        async function initFirebase() {
+            // 1. If a Firebase Realtime Database URL is provided (via URL ?db=..., UI modal, or CUSTOM_FIREBASE_CONFIG.databaseURL),
+            // start real-time syncing with that RTDB immediately!
+            if (customRtdbUrl) {
+                activeSyncMode = 'rtdb';
+                startRtdbSync();
+            }
+
+            // 2. Also initialize Firebase Auth & Firestore (either from CUSTOM_FIREBASE_CONFIG or environment __firebase_config)
+            try {
+                const hasCustomConfig = CUSTOM_FIREBASE_CONFIG && CUSTOM_FIREBASE_CONFIG.apiKey && CUSTOM_FIREBASE_CONFIG.projectId;
+                const hasEnvConfig = typeof __firebase_config !== 'undefined' && __firebase_config;
+
+                if (hasCustomConfig || hasEnvConfig) {
+                    const firebaseConfig = hasCustomConfig ? CUSTOM_FIREBASE_CONFIG : JSON.parse(__firebase_config);
+                    if (firebaseConfig.databaseURL && !customRtdbUrl) {
+                        customRtdbUrl = firebaseConfig.databaseURL.replace(/\/+$/, '');
+                        activeSyncMode = 'rtdb';
+                        startRtdbSync();
+                    }
+
+                    const app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+
+                    // RULE 3: Authenticate FIRST before any Firestore query
+                    if (!hasCustomConfig && typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    onAuthStateChanged(auth, (user) => {
+                        currentUser = user;
+                        if (user) {
+                            if (hasCustomConfig && !customRtdbUrl) {
+                                activeSyncMode = 'custom_firestore';
+                            }
+                            subscribeToBallotBox();
+                            updateConnectionBadgeUI();
+                        }
+                    });
+                } else {
+                    currentUser = { uid: getAnonymousVoterToken() };
+                    updateConnectionBadgeUI();
+                    updateUI();
+                }
+            } catch (err) {
+                console.error("Firebase init fallback:", err);
+                currentUser = { uid: getAnonymousVoterToken() };
+                updateConnectionBadgeUI();
+                updateUI();
+            }
+        }
+
+        // Firestore Real-time Listener (Strict compliance with Rule 1 & Rule 2)
+        function subscribeToBallotBox() {
+            if (!currentUser || !db) return;
+
+            if (unsubscribeSnapshot) {
+                unsubscribeSnapshot();
+            }
+
+            const votesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'knesset26_votes');
+
+            unsubscribeSnapshot = onSnapshot(
+                votesColRef,
+                (snapshot) => {
+                    const docs = [];
+                    snapshot.forEach((docSnap) => {
+                        const data = docSnap.data();
+                        if (data.customParty && data.customParty.id && !PARTY_MAP[data.customParty.id]) {
+                            PARTIES_DATA.unshift(data.customParty);
+                            PARTY_MAP[data.customParty.id] = data.customParty;
+                        }
+                        docs.push({ id: docSnap.id, ...data });
+                    });
+                    allVotesDocs = docs;
+                    updateUI();
+                },
+                (error) => {
+                    console.error("Error listening to ballot box:", error);
+                    updateUI();
+                }
+            );
+        }
+
+        // Firebase Realtime Database REST Sync (Works on any GitHub Pages link with ?db=...)
+        async function fetchRtdbVotes() {
+            if (!customRtdbUrl) return;
+            try {
+                const endpoint = `${customRtdbUrl}/kalpi_rooms/${encodeURIComponent(currentRoomCode)}/votes.json`;
+                const res = await fetch(endpoint);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data) {
+                    rtdbVotesList = [];
+                } else {
+                    rtdbVotesList = Object.entries(data).map(([id, val]) => {
+                        if (val && val.customParty && val.customParty.id && !PARTY_MAP[val.customParty.id]) {
+                            PARTIES_DATA.unshift(val.customParty);
+                            PARTY_MAP[val.customParty.id] = val.customParty;
+                        }
+                        return { id, ...val };
+                    });
+                }
+                updateUI();
+            } catch (err) {
+                console.error("RTDB sync error:", err);
+            }
+        }
+
+        function startRtdbSync() {
+            if (rtdbPollingInterval) clearInterval(rtdbPollingInterval);
+            if (!customRtdbUrl) return;
+            fetchRtdbVotes();
+            rtdbPollingInterval = setInterval(fetchRtdbVotes, 3500);
+            updateConnectionBadgeUI();
+        }
+
+        function updateConnectionBadgeUI() {
+            const syncText = document.getElementById('syncStatusText');
+            const dbBadge = document.getElementById('dbModeBadgeText');
+            const modalTitle = document.getElementById('modalConnTitle');
+            const modalSub = document.getElementById('modalConnSubtitle');
+
+            if (customRtdbUrl) {
+                syncText.textContent = 'קלפי מסונכרנת (Firebase RTDB)';
+                dbBadge.textContent = 'מחובר ל-Firebase שלך ✓';
+                modalTitle.textContent = `מחובר ל-Firebase Realtime Database (${customRtdbUrl})`;
+                modalSub.textContent = 'הכתובת מצורפת אוטומטית לקישור הוואטסאפ של הקבוצה שלך!';
+            } else if (activeSyncMode === 'custom_firestore') {
+                syncText.textContent = 'קלפי מסונכרנת (Firebase האישי שלך)';
+                dbBadge.textContent = 'מחובר ל-Firebase שלך ✓';
+                modalTitle.textContent = 'מחובר לפרויקט ה-Firebase האישי שלך (CUSTOM_FIREBASE_CONFIG)';
+                modalSub.textContent = 'כל ההצבעות מסונכרנות בזמן אמת ב-Firestore';
+            } else {
+                syncText.textContent = 'קלפי מסונכרנת בזמן אמת (Firebase)';
+                dbBadge.textContent = 'הגדרות Firebase / GitHub';
+            }
+        }
+
+        // ---------------------------------------------------------------------------
+        // 4. RENDER BALLOT SLIPS TRAY ("מגש הפתקים")
+        // ---------------------------------------------------------------------------
+        window.renderBallotSlips = function() {
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const queryText = (searchInput?.value || '').trim().toLowerCase();
+
+            if (clearBtn) {
+                clearBtn.classList.toggle('hidden', queryText.length === 0);
+            }
+
+            const myVotedPartyId = getMyCurrentVoteInRoom();
+
+            const partySlips = PARTIES_DATA.filter(p => p.category !== 'special').filter(party => {
+                if (queryText.length > 0) {
+                    return (
+                        party.letters.toLowerCase().includes(queryText) ||
+                        party.name.toLowerCase().includes(queryText) ||
+                        party.shortName.toLowerCase().includes(queryText)
+                    );
+                }
+                if (currentTrayFilter === 'main') return party.category === 'main';
+                if (currentTrayFilter === 'all') return true;
+                if (currentTrayFilter === 'special') return false;
+                return true;
+            });
+
+            const gridEl = document.getElementById('ballotSlipsGrid');
+            const expandContainer = document.getElementById('expandAllListsContainer');
+            const countLabel = document.getElementById('displayedSlipsCount');
+
+            if (countLabel) {
+                countLabel.textContent = `מוצגים ${partySlips.length} פתקים`;
+            }
+
+            if (expandContainer) {
+                expandContainer.classList.toggle('hidden', currentTrayFilter !== 'main' || queryText.length > 0);
+            }
+
+            if (partySlips.length === 0) {
+                gridEl.innerHTML = `
+                    <div class="col-span-full bg-white/80 rounded-2xl p-6 text-center text-slate-600 space-y-2">
+                        <p class="font-bold text-sm">לא נמצאו פתקים התואמים לחיפוש</p>
+                        <div class="flex items-center justify-center gap-3">
+                            <button onclick="setTrayFilter('all'); clearSearch();" class="text-xs font-bold text-israel-blue underline">
+                                הצג את כל הרשימות
+                            </button>
+                            <button onclick="openCustomSlipModal()" class="text-xs font-bold bg-israel-blue text-white px-3 py-1.5 rounded-lg">
+                                + הוסף פתק מותאם אישית
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                gridEl.innerHTML = partySlips.map(party => {
+                    const isMyChoice = myVotedPartyId === party.id && mySecretRevealed;
+                    const fontSizeClass = party.letters.length >= 3 ? 'text-4xl sm:text-5xl' : 'text-5xl sm:text-6xl';
+                    return `
+                        <button 
+                            onclick="openEnvelopeModal('${party.id}')"
+                            class="ballot-slip ${isMyChoice ? 'selected-slip' : ''} rounded-xl p-3 sm:p-4 min-h-[138px] sm:min-h-[152px] flex flex-col items-center justify-between text-center group cursor-pointer select-none"
+                        >
+                            <div class="w-full flex items-center justify-between text-[10px] font-bold text-slate-400">
+                                <span>הכנסת ה-26</span>
+                                ${isMyChoice ? '<span class="bg-israel-blue text-white px-1.5 py-0.5 rounded text-[9px]">הבחירה שלך</span>' : '<span class="opacity-0 group-hover:opacity-100 text-israel-blue transition">בחר פתק ←</span>'}
+                            </div>
+                            <div class="ballot-letters ${fontSizeClass} font-black my-auto pt-1 tracking-tight">
+                                ${party.letters}
+                            </div>
+                            <div class="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight line-clamp-2 w-full pt-1 border-t border-slate-200/70">
+                                ${party.name}
+                            </div>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            // Render Special Options (Undecided & Blank Slip)
+            const specialGrid = document.getElementById('specialSlipsGrid');
+            const specialOptions = PARTIES_DATA.filter(p => p.category === 'special');
+            specialGrid.innerHTML = specialOptions.map(opt => {
+                const isUndecided = opt.id === 'undecided';
+                return `
+                    <button 
+                        onclick="openEnvelopeModal('${opt.id}')"
+                        class="flex items-center justify-between p-3.5 rounded-xl border-2 ${isUndecided ? 'bg-amber-50/70 border-amber-200 hover:border-amber-400' : 'bg-slate-50 border-slate-200 hover:border-slate-400'} transition text-right group"
+                    >
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl bg-white border border-slate-300 shadow-xs flex items-center justify-center font-ballot font-black text-xl text-slate-900 shrink-0">
+                                ${opt.letters}
+                            </div>
+                            <div>
+                                <div class="font-bold text-sm text-slate-900">${opt.shortName}</div>
+                                <div class="text-xs text-slate-500">${opt.name}</div>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-israel-blue group-hover:translate-x-[-3px] transition shrink-0">
+                            למעטפה ←
+                        </span>
+                    </button>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        };
+
+        window.setTrayFilter = function(filterType) {
+            currentTrayFilter = filterType;
+            const btnMain = document.getElementById('filterMainBtn');
+            const btnAll = document.getElementById('filterAllBtn');
+            const btnSpecial = document.getElementById('filterSpecialBtn');
+
+            [btnMain, btnAll, btnSpecial].forEach(btn => {
+                btn.className = 'filter-pill shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+            });
+
+            if (filterType === 'main') {
+                btnMain.className = 'filter-pill shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl bg-israel-blue text-white transition shadow-xs';
+            } else if (filterType === 'all') {
+                btnAll.className = 'filter-pill shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl bg-israel-blue text-white transition shadow-xs';
+            } else if (filterType === 'special') {
+                btnSpecial.className = 'filter-pill shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-500 text-white transition shadow-xs';
+            }
+
+            renderBallotSlips();
+        };
+
+        window.clearSearch = function() {
+            const input = document.getElementById('searchInput');
+            if (input) input.value = '';
+            renderBallotSlips();
+        };
+
+        // ---------------------------------------------------------------------------
+        // 5. CUSTOM SLIP CREATION ("הוספת פתק מותאם אישית")
+        // ---------------------------------------------------------------------------
+        window.openCustomSlipModal = function() {
+            document.getElementById('customSlipLettersInput').value = '';
+            document.getElementById('customSlipNameInput').value = '';
+            document.getElementById('customSlipModal').classList.remove('hidden');
+        };
+
+        window.closeCustomSlipModal = function() {
+            document.getElementById('customSlipModal').classList.add('hidden');
+        };
+
+        window.createAndSelectCustomSlip = function() {
+            const letters = document.getElementById('customSlipLettersInput').value.trim();
+            const name = document.getElementById('customSlipNameInput').value.trim();
+            if (!letters || !name) {
+                showToast("נא להזין גם אותיות פתק וגם שם מפלגה");
+                return;
+            }
+            const customId = 'custom_' + encodeURIComponent(letters) + '_' + Math.abs(hashCode(name));
+            const newParty = {
+                id: customId,
+                letters: letters,
+                name: name,
+                shortName: `${name} (${letters})`,
+                category: 'main',
+                color: '#6366f1',
+                isCustom: true
+            };
+            if (!PARTY_MAP[customId]) {
+                PARTIES_DATA.unshift(newParty);
+                PARTY_MAP[customId] = newParty;
+            }
+            closeCustomSlipModal();
+            renderBallotSlips();
+            openEnvelopeModal(customId);
+        };
+
+        function hashCode(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return hash;
+        }
+
+        // ---------------------------------------------------------------------------
+        // 6. VOTING ENVELOPE MODAL & CASTING VOTE (FIRESTORE + RTDB)
+        // ---------------------------------------------------------------------------
+        window.openEnvelopeModal = function(partyId) {
+            const party = PARTY_MAP[partyId];
+            if (!party) return;
+
+            pendingSlipId = partyId;
+
+            const slipPreview = document.getElementById('modalSlipPreview');
+            const blueEnvelope = document.getElementById('modalBlueEnvelope');
+            slipPreview.classList.remove('animate-slip-insert');
+            blueEnvelope.classList.remove('animate-envelope-drop');
+
+            document.getElementById('modalSlipLetters').textContent = party.letters;
+            document.getElementById('modalSlipName').textContent = party.name;
+            document.getElementById('modalEnvelopeRoomCode').textContent = `קלפי: ${currentRoomCode}`;
+
+            const confirmBtn = document.getElementById('castVoteConfirmBtn');
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = `<i data-lucide="check-square" class="w-5 h-5"></i><span>הכנס מעטפה לקלפי (הצבעה אנונימית)</span>`;
+
+            document.getElementById('envelopeModal').classList.remove('hidden');
+            lucide.createIcons();
+        };
+
+        window.closeEnvelopeModal = function() {
+            document.getElementById('envelopeModal').classList.add('hidden');
+            pendingSlipId = null;
+        };
+
+        window.confirmCastVote = async function() {
+            if (!pendingSlipId) return;
+            const chosenPartyId = pendingSlipId;
+            const chosenPartyObj = PARTY_MAP[chosenPartyId];
+
+            const confirmBtn = document.getElementById('castVoteConfirmBtn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = `<span>משלשל מעטפה לקלפי...</span>`;
+
+            const slipPreview = document.getElementById('modalSlipPreview');
+            const blueEnvelope = document.getElementById('modalBlueEnvelope');
+            slipPreview.classList.add('animate-slip-insert');
+            blueEnvelope.classList.add('animate-envelope-drop');
+
+            playBallotSound();
+            isDemoMode = false;
+
+            const voterToken = getAnonymousVoterToken();
+            const docId = `${currentRoomCode}_${voterToken}`;
+            const voteData = {
+                roomCode: currentRoomCode,
+                partyId: chosenPartyId,
+                voterKey: voterToken,
+                updatedAt: Date.now()
+            };
+            if (chosenPartyObj && chosenPartyObj.isCustom) {
+                voteData.customParty = chosenPartyObj;
+            }
+
+            localSessionVotes[docId] = voteData;
+
+            // 1. Save to Custom Firebase Realtime Database if configured
+            if (customRtdbUrl) {
+                try {
+                    const endpoint = `${customRtdbUrl}/kalpi_rooms/${encodeURIComponent(currentRoomCode)}/votes/${encodeURIComponent(voterToken)}.json`;
+                    await fetch(endpoint, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(voteData)
+                    });
+                    await fetchRtdbVotes();
+                } catch (err) {
+                    console.error("RTDB vote save error:", err);
+                }
+            }
+
+            // 2. Save to Firestore if initialized
+            try {
+                if (db && currentUser) {
+                    const voteDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'knesset26_votes', docId);
+                    await setDoc(voteDocRef, voteData);
+                }
+            } catch (err) {
+                console.error("Firestore vote save error:", err);
+            }
+
+            setTimeout(() => {
+                closeEnvelopeModal();
+                showToast("המעטפה הוכנסה לקלפי בהצלחה ובאנונימיות מלאה!");
+                updateUI();
+                switchMainTab('results');
+            }, 1150);
+        };
+
+        function playBallotSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.18);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.35);
+            } catch (e) {}
+        }
+
+        // ---------------------------------------------------------------------------
+        // 7. CALCULATING VOTES & 120 KNESSET MANDATES
+        // ---------------------------------------------------------------------------
+        function getActiveRoomVotes() {
+            if (isDemoMode) {
+                return [
+                    { partyId: 'mahal' }, { partyId: 'mahal' }, { partyId: 'mahal' }, { partyId: 'mahal' }, { partyId: 'mahal' },
+                    { partyId: 'rak' }, { partyId: 'rak' }, { partyId: 'rak' }, { partyId: 'rak' }, { partyId: 'rak' },
+                    { partyId: 'peh' }, { partyId: 'peh' }, { partyId: 'peh' }, { partyId: 'peh' },
+                    { partyId: 'derech' }, { partyId: 'derech' }, { partyId: 'derech' },
+                    { partyId: 'emet' }, { partyId: 'emet' }, { partyId: 'emet' },
+                    { partyId: 'bet' }, { partyId: 'bet' },
+                    { partyId: 'lamed' },
+                    { partyId: 'undecided' }, { partyId: 'undecided' }
+                ];
+            }
+
+            const combinedMap = new Map();
+            // Include Firestore votes for this room
+            allVotesDocs.forEach(d => {
+                if (d.roomCode === currentRoomCode) {
+                    combinedMap.set(d.voterKey || d.id, d);
+                }
+            });
+            // Include RTDB votes for this room
+            rtdbVotesList.forEach(d => {
+                if (!d.roomCode || d.roomCode === currentRoomCode) {
+                    combinedMap.set(d.voterKey || d.id, d);
+                }
+            });
+            // Include optimistic local session vote
+            Object.entries(localSessionVotes).forEach(([id, d]) => {
+                if (d.roomCode === currentRoomCode) {
+                    combinedMap.set(d.voterKey || id, d);
+                }
+            });
+            return Array.from(combinedMap.values());
+        }
+
+        function getMyCurrentVoteInRoom() {
+            const voterToken = getAnonymousVoterToken();
+            const docId = `${currentRoomCode}_${voterToken}`;
+            if (localSessionVotes[docId]) {
+                return localSessionVotes[docId].partyId;
+            }
+            const foundRtdb = rtdbVotesList.find(d => d.voterKey === voterToken || d.id === voterToken);
+            if (foundRtdb) return foundRtdb.partyId;
+
+            const foundFs = allVotesDocs.find(d => d.id === docId || (d.roomCode === currentRoomCode && d.voterKey === voterToken));
+            return foundFs ? foundFs.partyId : null;
+        }
+
+        function calculateGroupResults() {
+            const votes = getActiveRoomVotes();
+            const totalVotes = votes.length;
+
+            const countsByParty = {};
+            let validPartyVotes = 0;
+            let undecidedAndBlankVotes = 0;
+
+            votes.forEach(v => {
+                const pid = v.partyId;
+                if (!PARTY_MAP[pid]) return;
+                countsByParty[pid] = (countsByParty[pid] || 0) + 1;
+                if (PARTY_MAP[pid].category === 'special') {
+                    undecidedAndBlankVotes++;
+                } else {
+                    validPartyVotes++;
+                }
+            });
+
+            // Calculate 120 Knesset mandates using Largest Remainder Method (Hare quota)
+            const mandatesByParty = {};
+            if (validPartyVotes > 0) {
+                const eligibleParties = Object.keys(countsByParty).filter(pid => {
+                    const p = PARTY_MAP[pid];
+                    if (!p || p.category === 'special') return false;
+                    const share = countsByParty[pid] / validPartyVotes;
+                    return useOfficialThreshold ? share >= 0.0325 : countsByParty[pid] > 0;
+                });
+
+                const totalEligibleVotes = eligibleParties.reduce((acc, pid) => acc + countsByParty[pid], 0);
+
+                if (totalEligibleVotes > 0) {
+                    let allocatedSeats = 0;
+                    const remainders = [];
+
+                    eligibleParties.forEach(pid => {
+                        const exactSeats = (countsByParty[pid] / totalEligibleVotes) * 120;
+                        const wholeSeats = Math.floor(exactSeats);
+                        mandatesByParty[pid] = wholeSeats;
+                        allocatedSeats += wholeSeats;
+                        remainders.push({ pid, rem: exactSeats - wholeSeats, votes: countsByParty[pid] });
+                    });
+
+                    const seatsLeft = 120 - allocatedSeats;
+                    remainders.sort((a, b) => (b.rem - a.rem) || (b.votes - a.votes));
+                    for (let i = 0; i < seatsLeft && i < remainders.length; i++) {
+                        mandatesByParty[remainders[i].pid]++;
+                    }
+                }
+            }
+
+            return {
+                totalVotes,
+                validPartyVotes,
+                undecidedAndBlankVotes,
+                countsByParty,
+                mandatesByParty
+            };
+        }
+
+        // ---------------------------------------------------------------------------
+        // 8. UPDATE DASHBOARD & RESULTS UI
+        // ---------------------------------------------------------------------------
+        function updateUI() {
+            document.getElementById('currentRoomBadge').textContent = currentRoomCode;
+
+            const myVoteId = getMyCurrentVoteInRoom();
+            const userVotedBanner = document.getElementById('userVotedBanner');
+            if (myVoteId && PARTY_MAP[myVoteId]) {
+                userVotedBanner.classList.remove('hidden');
+                const p = PARTY_MAP[myVoteId];
+                document.getElementById('mySecretVoteText').textContent = `${p.letters} – ${p.shortName}`;
+            } else {
+                userVotedBanner.classList.add('hidden');
+            }
+
+            renderBallotSlips();
+            renderResultsView();
+        }
+
+        function renderResultsView() {
+            const {
+                totalVotes,
+                validPartyVotes,
+                undecidedAndBlankVotes,
+                countsByParty,
+                mandatesByParty
+            } = calculateGroupResults();
+
+            document.getElementById('headerVoteCountBadge').textContent = totalVotes;
+
+            const myVoteId = getMyCurrentVoteInRoom();
+            const shouldLock = !myVoteId && !forceUnlockResults && !isDemoMode && totalVotes > 0;
+            document.getElementById('beforeVoteWarning').classList.toggle('hidden', !shouldLock);
+            document.getElementById('resultsDashboardContent').classList.toggle('hidden', shouldLock);
+
+            document.getElementById('statTotalVotes').textContent = totalVotes;
+            document.getElementById('statValidVotes').textContent = validPartyVotes;
+
+            const undecidedPct = totalVotes > 0 ? Math.round((undecidedAndBlankVotes / totalVotes) * 100) : 0;
+            document.getElementById('statUndecidedVotes').textContent = `${undecidedPct}%`;
+            document.getElementById('statUndecidedCount').textContent = `${undecidedAndBlankVotes} מעטפות`;
+
+            const votedPartyIds = Object.keys(countsByParty).sort((a, b) => {
+                const catA = PARTY_MAP[a].category === 'special' ? 1 : 0;
+                const catB = PARTY_MAP[b].category === 'special' ? 1 : 0;
+                if (catA !== catB) return catA - catB;
+                return countsByParty[b] - countsByParty[a];
+            });
+
+            const topRegularPartyId = votedPartyIds.find(pid => PARTY_MAP[pid].category !== 'special');
+            document.getElementById('statLeadingParty').textContent = topRegularPartyId
+                ? `מובילה: ${PARTY_MAP[topRegularPartyId].shortName}`
+                : 'ממתין להצבעות';
+
+            const demoBanner = document.getElementById('demoPreviewBanner');
+            const toggleDemoBtn = document.getElementById('toggleDemoBtn');
+            if (isDemoMode) {
+                demoBanner.classList.remove('hidden');
+                toggleDemoBtn.textContent = 'כבה תצוגת הדגמה (חזור לקלפי האמיתית)';
+            } else {
+                demoBanner.classList.toggle('hidden', totalVotes >= 3);
+                toggleDemoBtn.textContent = 'הפעל תצוגת הדגמה (25 קולות)';
+            }
+
+            // Render 120-Seat Stacked Bar
+            const stackedBar = document.getElementById('mandateStackedBar');
+            const partiesWithMandates = votedPartyIds.filter(pid => (mandatesByParty[pid] || 0) > 0);
+
+            if (partiesWithMandates.length === 0) {
+                stackedBar.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center text-xs font-semibold text-slate-400">
+                        טרם הוכנסו פתקי מפלגות לחישוב 120 המנדטים
+                    </div>
+                `;
+            } else {
+                stackedBar.innerHTML = partiesWithMandates.map(pid => {
+                    const party = PARTY_MAP[pid];
+                    const seats = mandatesByParty[pid];
+                    const widthPct = ((seats / 120) * 100).toFixed(2);
+                    return `
+                        <div 
+                            style="width: ${widthPct}%; background-color: ${party.color};" 
+                            class="h-full flex items-center justify-center text-[10px] font-black text-white border-l border-white/25 overflow-hidden transition-all duration-500"
+                            title="${party.shortName}: ${seats} מנדטים"
+                        >
+                            ${seats >= 6 ? `${party.letters} (${seats})` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Render Detailed Results List
+            const listContainer = document.getElementById('resultsListContainer');
+            if (votedPartyIds.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-israel-blue flex items-center justify-center mx-auto">
+                            <i data-lucide="inbox" class="w-6 h-6"></i>
+                        </div>
+                        <div class="font-bold text-slate-800 text-sm">הקלפי הקבוצתית מוכנה וממתינה למעטפה הראשונה!</div>
+                        <p class="text-xs text-slate-500 max-w-xs mx-auto">
+                            הצביעו במגש הפתקים או שתפו את הקישור בקבוצת הוואטסאפ כדי לראות את התוצאות בזמן אמת.
+                        </p>
+                    </div>
+                `;
+            } else {
+                listContainer.innerHTML = votedPartyIds.map(pid => {
+                    const party = PARTY_MAP[pid];
+                    const count = countsByParty[pid];
+                    const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+                    const mandates = mandatesByParty[pid] || 0;
+                    const isSpecial = party.category === 'special';
+
+                    return `
+                        <div class="bg-slate-50/90 hover:bg-slate-100/80 rounded-2xl p-3 border border-slate-200/90 transition">
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-11 h-11 rounded-xl bg-white border border-slate-300 shadow-2xs flex items-center justify-center font-ballot font-black text-lg text-slate-950 shrink-0">
+                                        ${party.letters}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="font-bold text-sm text-slate-900 truncate">${party.shortName}</div>
+                                        <div class="text-[11px] text-slate-500 truncate">${party.name}</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0 text-left">
+                                    ${!isSpecial ? `
+                                        <div class="bg-blue-50 border border-blue-200 text-israel-blue px-2.5 py-1 rounded-xl text-center min-w-[68px]">
+                                            <span class="font-black text-sm block leading-none">${mandates}</span>
+                                            <span class="text-[10px] font-bold block mt-0.5">מנדטים</span>
+                                        </div>
+                                    ` : ''}
+                                    <div class="text-left min-w-[52px]">
+                                        <span class="font-black text-sm text-slate-900 block leading-none">${pct}%</span>
+                                        <span class="text-[11px] text-slate-500 font-medium">${count} ${count === 1 ? 'קול' : 'קולות'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                                <div 
+                                    class="h-full rounded-full transition-all duration-500" 
+                                    style="width: ${pct}%; background-color: ${party.color};"
+                                ></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            renderCoalitionBuilder(partiesWithMandates, mandatesByParty);
+            lucide.createIcons();
+        }
+
+        function renderCoalitionBuilder(partiesWithMandates, mandatesByParty) {
+            const card = document.getElementById('coalitionBuilderCard');
+            const container = document.getElementById('coalitionPillsContainer');
+            const sumBadge = document.getElementById('coalitionSumBadge');
+
+            if (partiesWithMandates.length === 0) {
+                card.classList.add('hidden');
+                return;
+            }
+            card.classList.remove('hidden');
+
+            Array.from(selectedCoalitionParties).forEach(pid => {
+                if (!mandatesByParty[pid]) selectedCoalitionParties.delete(pid);
+            });
+
+            let totalCoalitionMandates = 0;
+            selectedCoalitionParties.forEach(pid => {
+                totalCoalitionMandates += (mandatesByParty[pid] || 0);
+            });
+
+            const hasMajority = totalCoalitionMandates >= 61;
+            sumBadge.textContent = `${totalCoalitionMandates} / 61 מנדטים`;
+            sumBadge.className = hasMajority
+                ? 'inline-block font-black text-sm sm:text-base px-3 py-1 rounded-xl bg-emerald-600 text-white shadow-xs transition'
+                : 'inline-block font-black text-sm sm:text-base px-3 py-1 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 transition';
+
+            container.innerHTML = partiesWithMandates.map(pid => {
+                const party = PARTY_MAP[pid];
+                const seats = mandatesByParty[pid];
+                const isSelected = selectedCoalitionParties.has(pid);
+
+                return `
+                    <button 
+                        onclick="toggleCoalitionParty('${pid}')"
+                        class="px-3 py-2 rounded-xl text-xs font-bold border-2 transition flex items-center gap-1.5 ${
+                            isSelected
+                                ? 'bg-israel-blue text-white border-israel-blue shadow-xs'
+                                : 'bg-slate-50 text-slate-800 border-slate-200 hover:border-slate-300'
+                        }"
+                    >
+                        <span class="font-ballot font-black text-sm">${party.letters}</span>
+                        <span>${party.shortName}</span>
+                        <span class="px-1.5 py-0.5 rounded-md text-[11px] font-black ${isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}">
+                            ${seats}
+                        </span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        window.toggleCoalitionParty = function(partyId) {
+            if (selectedCoalitionParties.has(partyId)) {
+                selectedCoalitionParties.delete(partyId);
+            } else {
+                selectedCoalitionParties.add(partyId);
+            }
+            renderResultsView();
+        };
+
+        // ---------------------------------------------------------------------------
+        // 9. FIREBASE SETUP MODAL & URL SHARING
+        // ---------------------------------------------------------------------------
+        window.openFirebaseSetupModal = function() {
+            const input = document.getElementById('customFirebaseInput');
+            if (customRtdbUrl) {
+                input.value = customRtdbUrl;
+            }
+            document.getElementById('firebaseSetupModal').classList.remove('hidden');
+        };
+
+        window.closeFirebaseSetupModal = function() {
+            document.getElementById('firebaseSetupModal').classList.add('hidden');
+        };
+
+        window.saveCustomFirebaseFromUI = function() {
+            const raw = document.getElementById('customFirebaseInput').value.trim();
+            if (!raw) {
+                showToast("נא להדביק כתובת Realtime Database או firebaseConfig");
+                return;
+            }
+
+            // Extract databaseURL if user pasted a full firebaseConfig object or a direct URL
+            let extractedUrl = '';
+            const urlMatch = raw.match(/https:\/\/[a-zA-Z0-9-]+(?:-default-rtdb)?\.(?:[a-z0-9-]+\.)?(?:firebaseio\.com|firebasedatabase\.app)/);
+            if (urlMatch) {
+                extractedUrl = urlMatch[0].replace(/\/+$/, '');
+            } else {
+                // Check if projectId was pasted in config and construct default RTDB URL
+                const projMatch = raw.match(/projectId\s*:\s*["']([a-zA-Z0-9-]+)["']/);
+                if (projMatch && projMatch[1]) {
+                    extractedUrl = `https://${projMatch[1]}-default-rtdb.firebaseio.com`;
+                }
+            }
+
+            if (!extractedUrl) {
+                showToast("לא נמצאה כתובת Firebase תקפה. ודא שהכתובת מתחילה ב-https://");
+                return;
+            }
+
+            customRtdbUrl = extractedUrl;
+            activeSyncMode = 'rtdb';
+            startRtdbSync();
+            updateConnectionBadgeUI();
+            closeFirebaseSetupModal();
+            showToast("הקלפי חוברה ל-Firebase שלך! כעת שתף את הקישור בוואטסאפ.");
+        };
+
+        window.clearCustomFirebaseFromUI = function() {
+            customRtdbUrl = '';
+            document.getElementById('customFirebaseInput').value = '';
+            if (rtdbPollingInterval) clearInterval(rtdbPollingInterval);
+            rtdbVotesList = [];
+            updateConnectionBadgeUI();
+            updateUI();
+            showToast("החיבור המותאם אופס");
+        };
+
+        window.testFirebaseConnection = async function() {
+            if (customRtdbUrl) {
+                await fetchRtdbVotes();
+                showToast("הסנכרון מול Firebase Realtime Database תקין ופעיל!");
+            } else if (db && currentUser) {
+                showToast("הסנכרון מול Firebase Firestore תקין ופעיל!");
+            } else {
+                showToast("הקלפי פעילה! הוסף כתובת Firebase לסנכרון חוצה-מכשירים ב-GitHub.");
+            }
+        };
+
+        // ---------------------------------------------------------------------------
+        // 10. NAVIGATION, MODALS & WHATSAPP SHARING (WITH ?room=...&db=...)
+        // ---------------------------------------------------------------------------
+        window.switchMainTab = function(tab) {
+            const voteSec = document.getElementById('voteSection');
+            const resSec = document.getElementById('resultsSection');
+            const btnVote = document.getElementById('tabVoteBtn');
+            const btnRes = document.getElementById('tabResultsBtn');
+
+            if (tab === 'vote') {
+                voteSec.classList.remove('hidden');
+                resSec.classList.add('hidden');
+                btnVote.className = 'py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-white text-israel-blue shadow-sm';
+                btnRes.className = 'py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900';
+            } else {
+                voteSec.classList.add('hidden');
+                resSec.classList.remove('hidden');
+                btnRes.className = 'py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 bg-white text-israel-blue shadow-sm';
+                btnVote.className = 'py-2.5 px-3 rounded-xl font-bold text-sm transition flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900';
+                renderResultsView();
+            }
+        };
+
+        window.toggleMySecretVote = function() {
+            mySecretRevealed = !mySecretRevealed;
+            const box = document.getElementById('mySecretVoteBox');
+            const btn = document.getElementById('revealMyVoteBtn');
+            box.classList.toggle('hidden', !mySecretRevealed);
+            btn.innerHTML = mySecretRevealed
+                ? `<i data-lucide="eye-off" class="w-3.5 h-3.5"></i><span>הסתר את בחירתי</span>`
+                : `<i data-lucide="eye" class="w-3.5 h-3.5"></i><span>הצג מה הצבעתי</span>`;
+            renderBallotSlips();
+        };
+
+        window.unlockResultsAnyway = function() {
+            forceUnlockResults = true;
+            renderResultsView();
+        };
+
+        window.setThresholdMode = function(official) {
+            useOfficialThreshold = official;
+            const noneBtn = document.getElementById('threshNoneBtn');
+            const offBtn = document.getElementById('threshOfficialBtn');
+            if (!official) {
+                noneBtn.className = 'text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white text-israel-blue shadow-sm transition';
+                offBtn.className = 'text-[11px] font-bold px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+            } else {
+                offBtn.className = 'text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white text-israel-blue shadow-sm transition';
+                noneBtn.className = 'text-[11px] font-bold px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+            }
+            renderResultsView();
+        };
+
+        window.toggleDemoMode = function() {
+            isDemoMode = !isDemoMode;
+            selectedCoalitionParties.clear();
+            renderResultsView();
+            showToast(isDemoMode ? "מצב הדגמה הופעל (25 קולות לדוגמה)" : "חזרת לתוצאות האמת של הקלפי");
+        };
+
+        window.openRoomModal = function() {
+            document.getElementById('roomCodeInput').value = currentRoomCode;
+            document.getElementById('roomModal').classList.remove('hidden');
+        };
+
+        window.closeRoomModal = function() {
+            document.getElementById('roomModal').classList.add('hidden');
+        };
+
+        window.generateRandomRoomCode = function() {
+            const num = Math.floor(100 + Math.random() * 900);
+            document.getElementById('roomCodeInput').value = `KALPI-${num}`;
+        };
+
+        window.saveRoomCode = function() {
+            const raw = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+            if (!raw) return;
+            currentRoomCode = raw.replace(/\s+/g, '-').slice(0, 20);
+            isDemoMode = false;
+            selectedCoalitionParties.clear();
+            closeRoomModal();
+            if (customRtdbUrl) fetchRtdbVotes();
+            updateUI();
+            showToast(`עברת לקלפי קבוצתית: ${currentRoomCode}`);
+        };
+
+        window.openPrivacyModal = function() {
+            document.getElementById('privacyModal').classList.remove('hidden');
+        };
+
+        window.closePrivacyModal = function() {
+            document.getElementById('privacyModal').classList.add('hidden');
+        };
+
+        // Build Direct Shareable URL (Includes ?room=... and &db=... if configured)
+        function getShareablePollUrl() {
+            const baseUrl = window.location.href.split('?')[0];
+            const params = new URLSearchParams();
+            params.set('room', currentRoomCode);
+            if (customRtdbUrl) {
+                params.set('db', customRtdbUrl);
+            }
+            return `${baseUrl}?${params.toString()}`;
+        }
+
+        function buildInviteMessage() {
+            const shareUrl = getShareablePollUrl();
+            return [
+                `🗳️ *סקר בחירות אנונימי לקבוצה שלנו – הבחירות לכנסת ה-26!* 🇮🇱`,
+                ``,
+                `למי מצביעים מחר? פתחנו קלפי וירטואלית חשאית (100% אנונימי, בלי הרשמה ובלי זיהוי).`,
+                `🔑 קוד הקלפי של הקבוצה: *${currentRoomCode}*`,
+                ``,
+                `כנסו לבחור פתק מאחורי הפרגוד ולראות את תמונת 120 המנדטים של הקבוצה בזמן אמת:`,
+                shareUrl
+            ].join('\n');
+        }
+
+        window.shareInviteToWhatsApp = function() {
+            const msg = buildInviteMessage();
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, '_blank');
+        };
+
+        window.copyInviteText = function() {
+            copyTextToClipboard(buildInviteMessage(), "הודעת ההזמנה והקישור לקבוצה הועתקו ללוח!");
+        };
+
+        function buildResultsMessage() {
+            const { totalVotes, countsByParty, mandatesByParty } = calculateGroupResults();
+            if (totalVotes === 0) {
+                return buildInviteMessage();
+            }
+
+            const sortedIds = Object.keys(countsByParty).sort((a, b) => countsByParty[b] - countsByParty[a]);
+            const lines = [
+                `📊 *מדגם קלפי החברים (${currentRoomCode}) – הבחירות לכנסת ה-26!* 🇮🇱`,
+                `סה"כ הצביעו עד כה: *${totalVotes} חברים* (הצבעה אנונימית)`,
+                ``,
+                `🏛️ *חלוקת הקולות והמנדטים בקבוצה (מתוך 120):*`
+            ];
+
+            sortedIds.forEach(pid => {
+                const p = PARTY_MAP[pid];
+                const count = countsByParty[pid];
+                const pct = Math.round((count / totalVotes) * 100);
+                const seats = mandatesByParty[pid] || 0;
+                if (p.category === 'special') {
+                    lines.push(`• *${p.shortName}*: ${pct}% (${count} קולות)`);
+                } else {
+                    lines.push(`• *[${p.letters}] ${p.shortName}*: *${seats} מנדטים* | ${pct}% (${count} קולות)`);
+                }
+            });
+
+            lines.push(``);
+            lines.push(`🗳️ עוד לא הצבעתם? כנסו לקלפי הקבוצתית:`);
+            lines.push(getShareablePollUrl());
+            return lines.join('\n');
+        }
+
+        window.shareResultsToWhatsApp = function() {
+            const msg = buildResultsMessage();
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, '_blank');
+        };
+
+        window.copyResultsText = function() {
+            copyTextToClipboard(buildResultsMessage(), "סיכום מדגם הקלפי הועתק להדבקה בוואטסאפ!");
+        };
+
+        function copyTextToClipboard(text, successMsg) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMsg);
+            } catch (err) {
+                console.error('Copy failed:', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        let toastTimeout = null;
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const msgEl = document.getElementById('toastMessage');
+            msgEl.textContent = message;
+            container.classList.remove('opacity-0', 'translate-y-2');
+            container.classList.add('opacity-100', 'translate-y-0');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                container.classList.add('opacity-0', 'translate-y-2');
+                container.classList.remove('opacity-100', 'translate-y-0');
+            }, 3200);
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderBallotSlips();
+            initFirebase();
+        });
+    </script>
+</body>
+</html>
