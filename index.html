@@ -138,6 +138,10 @@
             background: #cbd5e1;
             border-radius: 9999px;
         }
+
+        button[onclick="openFirebaseSetupModal()"]:not(#syncStatusPill), #firebaseSetupModal {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="min-h-screen text-slate-900 pb-24">
@@ -850,23 +854,21 @@
         let rtdbPollingInterval = null;
         let activeSyncMode = 'firestore'; // 'rtdb' | 'custom_firestore' | 'firestore'
 
-        // Generate a persistent anonymous voter token per browser tab/window without localStorage
+        // Generate a persistent anonymous voter token per browser tab/window
         function getAnonymousVoterToken() {
-            if (currentUser && currentUser.uid) {
-                return currentUser.uid;
-            }
             try {
-                if (window.name && window.name.startsWith('kalpi_voter_')) {
-                    return window.name;
+                const storageKey = 'kalpi_voter_token_v1';
+                let token = localStorage.getItem(storageKey);
+                if (!token) {
+                    token = 'kalpi_voter_' + crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+                    localStorage.setItem(storageKey, token);
                 }
-                const generated = 'kalpi_voter_' + crypto.randomUUID().replace(/-/g, '').slice(0, 16);
-                window.name = generated;
-                return generated;
+                return token;
             } catch (e) {
                 return 'kalpi_voter_session';
             }
         }
-
+        
         // Parse URL parameters (?room=...&db=...) so shared WhatsApp links auto-configure!
         try {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1657,14 +1659,8 @@
         // ---------------------------------------------------------------------------
         // 9. FIREBASE SETUP MODAL & URL SHARING
         // ---------------------------------------------------------------------------
-        window.openFirebaseSetupModal = function() {
-            const input = document.getElementById('customFirebaseInput');
-            if (customRtdbUrl) {
-                input.value = customRtdbUrl;
-            }
-            document.getElementById('firebaseSetupModal').classList.remove('hidden');
-        };
-
+        window.openFirebaseSetupModal = function() { return; };
+        
         window.closeFirebaseSetupModal = function() {
             document.getElementById('firebaseSetupModal').classList.add('hidden');
         };
@@ -1820,14 +1816,12 @@
         // Build Direct Shareable URL (Includes ?room=... and &db=... if configured)
         function getShareablePollUrl() {
             const baseUrl = window.location.href.split('?')[0];
-            const params = new URLSearchParams();
-            params.set('room', currentRoomCode);
-            if (customRtdbUrl) {
-                params.set('db', customRtdbUrl);
+            if (currentRoomCode === 'KNESSET26') {
+                return baseUrl; // קישור נקי לגמרי לברירת המחדל!
             }
-            return `${baseUrl}?${params.toString()}`;
+            return `${baseUrl}?room=${encodeURIComponent(currentRoomCode)}`;
         }
-
+        
         function buildInviteMessage() {
             const shareUrl = getShareablePollUrl();
             return [
